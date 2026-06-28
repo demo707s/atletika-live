@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Juniorky — Skok o tyč · MČR 2026</title>
+<style>
+:root {
+  --bg: #08080f;
+  --surface: #12121c;
+  --surface2: #1a1a28;
+  --border: #252535;
+  --text: #e8e8f2;
+  --muted: #5a5a78;
+  --muted2: #3a3a55;
+  --green: #22c55e;
+  --green-bg: #0a2a16;
+  --red: #f87171;
+  --red-bg: #2a0a0a;
+  --purple: #c084fc;
+  --purple-bg: #1e0a35;
+  --gold: #f59e0b;
+  --silver: #94a3b8;
+  --bronze: #b45309;
+  --blue: #60a5fa;
+  --blue-bg: #0a1e3a;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+/* HEADER */
+.header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.header-left { display: flex; align-items: center; gap: 14px; }
+
+.logo {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #7c3aed, #3b82f6);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.header-title {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.header-sub {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 1px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-shrink: 0;
+}
+
+/* STATUS BADGE */
+.badge {
+  padding: 5px 14px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.badge-startlist { background: var(--blue-bg); color: var(--blue); border: 1px solid #1e3a6e; }
+.badge-live { background: #0d2010; color: #4ade80; border: 1px solid #1a4d25; }
+.badge-live::before { content: "● "; }
+.badge-official { background: #0d1e0d; color: #86efac; border: 1px solid #1a3d1a; }
+.badge-error { background: var(--red-bg); color: var(--red); border: 1px solid #5c1c1c; }
+.badge-unknown { background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
+
+/* REFRESH WIDGET */
+.refresh-widget {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+.refresh-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.countdown-ring {
+  width: 28px;
+  height: 28px;
+  position: relative;
+}
+.countdown-ring svg {
+  transform: rotate(-90deg);
+}
+.countdown-ring circle {
+  fill: none;
+  stroke-width: 3;
+}
+.ring-bg { stroke: var(--border); }
+.ring-fill { stroke: #7c3aed; stroke-linecap: round; transition: stroke-dashoffset 1s linear; }
+.countdown-num {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--text);
+}
+.last-update {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+/* MAIN CONTENT */
+.container { max-width: 1600px; margin: 0 auto; padding: 24px; }
+
+.info-bar {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 20px;
+  padding: 12px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.info-bar strong { color: var(--text); }
+
+/* RESULTS TABLE */
+.table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border); }
+
+table { width: 100%; border-collapse: collapse; }
+
+thead th {
+  background: var(--surface);
+  padding: 10px 14px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--border);
+}
+thead th:not(:last-child) { border-right: 1px solid var(--border); }
+
+/* Height headers */
+.th-height {
+  text-align: center;
+  min-width: 56px;
+  font-size: 10.5px;
+  padding: 10px 6px;
+}
+
+tbody tr { border-bottom: 1px solid var(--muted2); transition: background 0.1s; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: var(--surface); }
+
+td {
+  padding: 12px 14px;
+  vertical-align: middle;
+}
+td:not(:last-child) { border-right: 1px solid var(--muted2); }
+
+/* Rank */
+.td-rank {
+  width: 44px;
+  text-align: center;
+  font-size: 17px;
+  font-weight: 800;
+  padding: 12px 8px;
+}
+.r1 { color: var(--gold); }
+.r2 { color: var(--silver); }
+.r3 { color: var(--bronze); }
+.rnm { color: var(--muted); font-size: 12px; }
+
+/* Name + club */
+.td-name { min-width: 180px; }
+.athlete-name { font-weight: 600; font-size: 14px; color: var(--text); }
+.athlete-club { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+/* Result */
+.td-result {
+  text-align: right;
+  white-space: nowrap;
+  min-width: 90px;
+}
+.result-val { font-size: 17px; font-weight: 800; letter-spacing: -0.01em; }
+.record-tag {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: #3b0764;
+  color: #e9d5ff;
+  margin-left: 6px;
+  vertical-align: middle;
+  letter-spacing: 0.04em;
+}
+
+/* Attempt cells */
+.td-attempt {
+  text-align: center;
+  padding: 8px 4px;
+  min-width: 56px;
+}
+
+.att {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  padding: 4px 7px;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 0.05em;
+}
+
+.att-O   { background: var(--green-bg); color: var(--green); border: 1px solid #1a4d28; }
+.att-XO  { background: var(--green-bg); color: #86efac; border: 1px solid #1a3d20; opacity: 0.9; }
+.att-XXO { background: var(--green-bg); color: #bbf7d0; border: 1px solid #153318; opacity: 0.8; }
+.att-X   { background: var(--red-bg); color: var(--red); border: 1px solid #5c1c1c; }
+.att-XX  { background: var(--red-bg); color: #fca5a5; border: 1px solid #4a1515; }
+.att-XXX { background: var(--purple-bg); color: var(--purple); border: 1px solid #3b1560; }
+.att-dash{ background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
+.att-empty{ background: transparent; border: 1px solid transparent; color: transparent; }
+
+/* STARTLIST */
+.startlist-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+.scard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  transition: border-color 0.2s;
+}
+.scard:hover { border-color: var(--muted2); }
+
+.scard-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.scard-num {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--muted);
+  line-height: 1;
+}
+
+.scard-name { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+.scard-club { font-size: 12px; color: var(--muted); }
+
+.scard-stats {
+  display: flex;
+  gap: 20px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.scard-stat { display: flex; flex-direction: column; gap: 3px; }
+.stat-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.stat-val { font-size: 16px; font-weight: 700; }
+.stat-val-na { color: var(--muted); }
+
+/* LOADING / ERROR */
+.loading-msg {
+  text-align: center;
+  padding: 80px 24px;
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.err-box {
+  background: var(--red-bg);
+  border: 1px solid #5c1c1c;
+  color: var(--red);
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+}
+
+/* Responsive */
+@media (max-width: 700px) {
+  .header { flex-wrap: wrap; }
+  .container { padding: 16px; }
+  .startlist-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="logo">🏃</div>
+    <div>
+      <div class="header-title">Skok o tyč — Juniorky</div>
+      <div class="header-sub">MČR juniorů 2026 · Olomouc</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <span class="badge badge-unknown" id="badge">Načítání</span>
+    <div class="refresh-widget">
+      <div class="refresh-row">
+        <div class="countdown-ring">
+          <svg width="28" height="28" viewBox="0 0 28 28">
+            <circle class="ring-bg" cx="14" cy="14" r="11"/>
+            <circle class="ring-fill" id="ringFill" cx="14" cy="14" r="11"
+              stroke-dasharray="69.1" stroke-dashoffset="0"/>
+          </svg>
+          <div class="countdown-num" id="countNum">60</div>
+        </div>
+        <span>do obnovení</span>
+      </div>
+      <div class="last-update" id="lastUpd">—</div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div id="app" class="loading-msg">Načítám data ze atletika.cz…</div>
+</div>
+
+<script>
+const CIRCUMFERENCE = 2 * Math.PI * 11; // ~69.1
+
+let cdValue = 60;
+let cdTimer = null;
+
+function getAttClass(att) {
+  const t = att.trim();
+  if (!t || t === '') return 'att-empty';
+  if (t === '-') return 'att-dash';
+  if (t === 'O') return 'att-O';
+  if (t === 'XO') return 'att-XO';
+  if (t === 'XXO') return 'att-XXO';
+  if (t === 'X') return 'att-X';
+  if (t === 'XX') return 'att-XX';
+  if (t === 'XXX') return 'att-XXX';
+  // fallback: ends with O = cleared, ends with X = failed
+  if (t.endsWith('O') && t !== '-O') return 'att-XO';
+  return 'att-X';
+}
+
+function rankClass(rank) {
+  if (rank === '1' || rank === 1) return 'r1';
+  if (rank === '2' || rank === 2) return 'r2';
+  if (rank === '3' || rank === 3) return 'r3';
+  if (rank === 'NM' || rank === 'DSQ' || rank === 'DNS') return 'rnm';
+  return '';
+}
+
+function renderResults(data) {
+  const { heights, athletes, race_time } = data;
+  let html = '';
+
+  if (race_time || athletes.length) {
+    html += `<div class="info-bar">`;
+    if (race_time) html += `<span>Čas: <strong>${race_time}</strong></span>`;
+    html += `<span>Závodnic celkem: <strong>${athletes.length}</strong></span>`;
+    if (heights.length) html += `<span>Výšky: <strong>${heights[0]} – ${heights[heights.length-1]} m</strong></span>`;
+    html += `</div>`;
+  }
+
+  html += '<div class="table-wrap"><table>';
+
+  // Header
+  html += '<thead><tr>';
+  html += '<th style="text-align:center;width:44px">#</th>';
+  html += '<th>Závodnice</th>';
+  html += '<th style="text-align:right;min-width:100px">Výkon</th>';
+  for (const h of heights) {
+    html += `<th class="th-height">${h}</th>`;
+  }
+  html += '</tr></thead><tbody>';
+
+  for (const a of athletes) {
+    const rc = rankClass(a.rank);
+    html += '<tr>';
+    html += `<td class="td-rank ${rc}">${a.rank || '—'}</td>`;
+    html += `<td class="td-name">
+      <div class="athlete-name">${a.name}</div>
+      <div class="athlete-club">${a.club}</div>
+    </td>`;
+
+    let resHtml = a.result ? `<span class="result-val">${a.result}</span>` : '<span style="color:var(--muted)">—</span>';
+    if (a.record) resHtml += `<span class="record-tag">${a.record}</span>`;
+    html += `<td class="td-result">${resHtml}</td>`;
+
+    for (let i = 0; i < heights.length; i++) {
+      const att = (a.attempts[i] || '').trim();
+      const cls = getAttClass(att);
+      html += `<td class="td-attempt"><span class="att ${cls}">${att || ''}</span></td>`;
+    }
+    html += '</tr>';
+  }
+
+  html += '</tbody></table></div>';
+  return html;
+}
+
+function renderStartlist(data) {
+  const { athletes, race_time } = data;
+  let html = '';
+
+  html += `<div class="info-bar">`;
+  if (race_time) html += `<span>Start: <strong>${race_time}</strong></span>`;
+  html += `<span>Přihlášeno: <strong>${athletes.length} závodnic</strong></span>`;
+  html += `</div>`;
+
+  html += '<div class="startlist-grid">';
+  athletes.forEach((a, i) => {
+    const hasPb = a.pb && a.pb !== '0.00';
+    const hasSb = a.sb && a.sb !== '0.00';
+    html += `<div class="scard">
+      <div class="scard-top">
+        <div class="scard-num">${i + 1}</div>
+      </div>
+      <div class="scard-name">${a.name}</div>
+      <div class="scard-club">${a.club || '—'}</div>
+      <div class="scard-stats">
+        <div class="scard-stat">
+          <span class="stat-label">PB</span>
+          <span class="stat-val ${hasPb ? '' : 'stat-val-na'}">${hasPb ? a.pb + ' m' : '—'}</span>
+        </div>
+        <div class="scard-stat">
+          <span class="stat-label">SB</span>
+          <span class="stat-val ${hasSb ? '' : 'stat-val-na'}">${hasSb ? a.sb + ' m' : '—'}</span>
+        </div>
+      </div>
+    </div>`;
+  });
+  html += '</div>';
+  return html;
+}
+
+function setBadge(status) {
+  const badge = document.getElementById('badge');
+  const map = {
+    startlist: ['Přihlášky', 'badge-startlist'],
+    live:      ['LIVE',      'badge-live'],
+    official:  ['Finální',   'badge-official'],
+    error:     ['Chyba',     'badge-error'],
+    unknown:   ['?',         'badge-unknown'],
+  };
+  const [label, cls] = map[status] || ['?', 'badge-unknown'];
+  badge.textContent = label;
+  badge.className = 'badge ' + cls;
+}
+
+function render(data) {
+  const app = document.getElementById('app');
+  if (data.error) {
+    setBadge('error');
+    app.innerHTML = `<div class="err-box">Chyba: ${data.error}</div>`;
+    return;
+  }
+  setBadge(data.status);
+  if (data.heights && data.heights.length > 0) {
+    app.innerHTML = renderResults(data);
+  } else {
+    app.innerHTML = renderStartlist(data);
+  }
+}
+
+function updateCountdown(sec) {
+  document.getElementById('countNum').textContent = sec;
+  const offset = CIRCUMFERENCE * (1 - sec / 60);
+  document.getElementById('ringFill').style.strokeDashoffset = offset;
+}
+
+function startCountdown() {
+  clearInterval(cdTimer);
+  cdValue = 60;
+  updateCountdown(cdValue);
+  cdTimer = setInterval(() => {
+    cdValue--;
+    updateCountdown(Math.max(cdValue, 0));
+    if (cdValue <= 0) {
+      clearInterval(cdTimer);
+      loadData();
+    }
+  }, 1000);
+}
+
+async function loadData() {
+  try {
+    const apiBase = window.location.hostname === 'localhost' ? 'http://localhost:8765' : `http://${window.location.hostname}:8765`;
+    const resp = await fetch(apiBase + '/api/data');
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const data = await resp.json();
+    render(data);
+    document.getElementById('lastUpd').textContent =
+      'Obnoveno: ' + new Date().toLocaleTimeString('cs-CZ', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  } catch (e) {
+    document.getElementById('app').innerHTML =
+      `<div class="err-box">Nepodařilo se připojit k serveru: ${e.message}</div>`;
+  }
+  startCountdown();
+}
+
+loadData();
+</script>
+</body>
+</html>
