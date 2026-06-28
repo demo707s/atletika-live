@@ -530,8 +530,10 @@ function startCountdown() {
 
 async function loadData() {
   try {
-    const apiBase = window.location.hostname === 'localhost' ? 'http://localhost:8765' : `http://${window.location.hostname}:8765`;
-    const resp = await fetch(apiBase + '/api/data');
+    const apiUrl = window.location.hostname === 'localhost'
+      ? 'http://localhost:8765/api/data'
+      : '/api/data';
+    const resp = await fetch(apiUrl);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     const data = await resp.json();
     render(data);
