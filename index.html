@@ -185,6 +185,26 @@ thead th:not(:last-child) { border-right: 1px solid var(--border); }
   font-size: 10.5px;
   padding: 10px 6px;
 }
+.th-height-current {
+  background: #1a1400 !important;
+  color: var(--gold) !important;
+  border-bottom: 2px solid var(--gold) !important;
+  position: relative;
+}
+.th-height-current::after {
+  content: "▼ TEĎ";
+  display: block;
+  font-size: 9px;
+  font-weight: 800;
+  color: var(--gold);
+  letter-spacing: 0.06em;
+  margin-top: 2px;
+}
+.td-attempt-current {
+  background: #100e00 !important;
+  border-left: 2px solid var(--gold) !important;
+  border-right: 2px solid var(--gold) !important;
+}
 
 tbody tr { border-bottom: 1px solid var(--muted2); transition: background 0.1s; }
 tbody tr:last-child { border-bottom: none; }
@@ -396,14 +416,16 @@ function rankClass(rank) {
 }
 
 function renderResults(data) {
-  const { heights, athletes, race_time } = data;
+  const { heights, athletes, race_time, current_height_index } = data;
   let html = '';
 
   if (race_time || athletes.length) {
     html += `<div class="info-bar">`;
     if (race_time) html += `<span>Čas: <strong>${race_time}</strong></span>`;
     html += `<span>Závodnic celkem: <strong>${athletes.length}</strong></span>`;
-    if (heights.length) html += `<span>Výšky: <strong>${heights[0]} – ${heights[heights.length-1]} m</strong></span>`;
+    if (current_height_index >= 0 && heights[current_height_index]) {
+      html += `<span>▶ Aktuální výška: <strong style="color:var(--gold)">${heights[current_height_index]} m</strong></span>`;
+    }
     html += `</div>`;
   }
 
@@ -414,8 +436,9 @@ function renderResults(data) {
   html += '<th style="text-align:center;width:44px">#</th>';
   html += '<th>Závodnice</th>';
   html += '<th style="text-align:right;min-width:100px">Výkon</th>';
-  for (const h of heights) {
-    html += `<th class="th-height">${h}</th>`;
+  for (let i = 0; i < heights.length; i++) {
+    const isCurrent = i === current_height_index;
+    html += `<th class="th-height${isCurrent ? ' th-height-current' : ''}">${heights[i]}</th>`;
   }
   html += '</tr></thead><tbody>';
 
@@ -435,7 +458,8 @@ function renderResults(data) {
     for (let i = 0; i < heights.length; i++) {
       const att = (a.attempts[i] || '').trim();
       const cls = getAttClass(att);
-      html += `<td class="td-attempt"><span class="att ${cls}">${att || ''}</span></td>`;
+      const isCurrent = i === current_height_index;
+      html += `<td class="td-attempt${isCurrent ? ' td-attempt-current' : ''}"><span class="att ${cls}">${att || ''}</span></td>`;
     }
     html += '</tr>';
   }

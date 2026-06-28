@@ -91,7 +91,17 @@ def fetch_data():
         tbody = tbody_m.group(1)
         athletes = parse_results(tbody) if heights else parse_startlist(tbody)
 
-    return {"status": status, "race_time": race_time, "heights": heights, "athletes": athletes}
+    # Aktualni vyska = nejpravejsi sloupec kde nekdo este zkousel (neni prazdny ani -)
+    current_height_index = -1
+    for i in range(len(heights)):
+        for a in athletes:
+            if i < len(a.get("attempts", [])):
+                att = a["attempts"][i].strip()
+                if att and att != "-":
+                    current_height_index = i
+
+    return {"status": status, "race_time": race_time, "heights": heights,
+            "athletes": athletes, "current_height_index": current_height_index}
 
 
 class handler(BaseHTTPRequestHandler):
